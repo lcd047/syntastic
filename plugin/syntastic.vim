@@ -143,6 +143,8 @@ function! s:UpdateErrors(auto_invoked, ...)
         return
     endif
 
+    let time = reltime()
+    try
     if !a:auto_invoked || s:ModeMapAllowsAutoChecking()
         if a:0 >= 1
             call s:CacheErrors(a:1)
@@ -169,6 +171,9 @@ function! s:UpdateErrors(auto_invoked, ...)
     endif
 
     call s:AutoToggleLocList()
+    finally
+        echomsg 'UpdateErrors(' . a:auto_invoked . '): ' . reltimestr(reltime(time))
+    endtry
 endfunction
 
 "automatically open/close the location list window depending on the users
@@ -484,11 +489,16 @@ endfunction
 "However, on some versions of gvim using `redraw!` causes the screen to
 "flicker - so use redraw.
 function! s:Redraw()
+    let time = reltime()
+    try
     if has('gui_running')
         redraw
     else
         redraw!
     endif
+    finally
+        echomsg 'Redraw: '.reltimestr(reltime(time))
+    endtry
 endfunction
 
 function! s:uname()

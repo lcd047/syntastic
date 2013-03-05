@@ -36,8 +36,14 @@ function! g:SyntasticChecker.name()
 endfunction
 
 function! g:SyntasticChecker.getLocList()
+    let time = reltime()
+    try
     let list = self._locListFunc()
-    return g:SyntasticLoclist.New(list)
+    let llist = g:SyntasticLoclist.New(list)
+    finally
+        echomsg 'SyntasticChecker.getLocList: ' . reltimestr(reltime(time))
+    endtry
+    return llist
 endfunction
 
 function! g:SyntasticChecker.getHighlightRegexFor(error)
