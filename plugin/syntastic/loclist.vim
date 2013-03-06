@@ -47,7 +47,13 @@ function! g:SyntasticLoclist.hasErrorsOrWarningsToDisplay()
     if empty(self._rawLoclist)
         return 0
     endif
-    return len(self.errors()) || !self._quietWarnings
+    let time = reltime()
+    try
+    let errs = len(self.errors()) || !self._quietWarnings
+    finally
+        echomsg '* caching ' . len(self.errors()) . ': ' . reltimestr(reltime(time))
+    endtry
+    return errs
 endfunction
 
 function! g:SyntasticLoclist.errors()

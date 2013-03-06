@@ -301,11 +301,12 @@ function! s:SignErrors()
     let time = reltime()
     try
     let loclist = s:LocList()
-    echomsg 'loclist[' . len(loclist)  . ']'
-    echomsg 'first_sign_id = ' . s:first_sign_id
+    echomsg 'loclist[' . loclist.length()  . ']'
     if loclist.hasErrorsOrWarningsToDisplay()
 
         let errors = loclist.filter({'bufnr': bufnr('')})
+        let time2 = reltime()
+        try
         for i in errors
             let sign_severity = 'Error'
             let sign_subtype = ''
@@ -323,6 +324,9 @@ function! s:SignErrors()
                 let s:next_sign_id += 1
             endif
         endfor
+        finally
+            echomsg 'SignErrors loop: ' . reltimestr(reltime(time2))
+        endtry
     endif
     finally
         echomsg 'SignErrors: ' . reltimestr(reltime(time))
