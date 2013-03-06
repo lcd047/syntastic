@@ -28,14 +28,9 @@ function! g:SyntasticRegistry.Instance()
 endfunction
 
 function! g:SyntasticRegistry.CreateAndRegisterChecker(args)
-    let time = reltime()
-    try
     let checker = g:SyntasticChecker.New(a:args)
     let registry = g:SyntasticRegistry.Instance()
     call registry.registerChecker(checker)
-    finally
-        echomsg 'CreateAndRegisterChecker(' . checker._name . '): ' . reltimestr(reltime(time))
-    endtry
 endfunction
 
 function! g:SyntasticRegistry.registerChecker(checker) abort

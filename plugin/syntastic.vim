@@ -167,12 +167,7 @@ function! s:UpdateErrors(auto_invoked, ...)
 
     let loclist = s:LocList()
     if g:syntastic_auto_jump && loclist.hasErrorsOrWarningsToDisplay()
-        let time2 = reltime()
-        try
         silent! ll
-        finally
-            echomsg 'll: ' . reltimestr(reltime(time2))
-        endtry
     endif
 
     call s:AutoToggleLocList()
@@ -229,8 +224,6 @@ function! s:CacheErrors(...)
     if filereadable(expand("%"))
         for ft in s:CurrentFiletypes()
 
-            let time2 = reltime()
-            try
             if a:0
                 let checker = s:registry.getChecker(ft, a:1)
                 if !empty(checker)
@@ -239,12 +232,7 @@ function! s:CacheErrors(...)
             else
                 let checkers = s:registry.getActiveCheckers(ft)
             endif
-            finally
-                echomsg 'CacheErrors - active checkers for ' . ft . ': ' . reltimestr(reltime(time2))
-            endtry
 
-            let time2 = reltime()
-            try
             for checker in checkers
                 let loclist = checker.getLocList()
 
@@ -255,9 +243,6 @@ function! s:CacheErrors(...)
                     break
                 endif
             endfor
-            finally
-                echomsg 'CacheErrors - extend for ' . ft . ': ' . reltimestr(reltime(time2))
-            endtry
         endfor
     endif
 
@@ -313,7 +298,11 @@ let s:next_sign_id = s:first_sign_id
 
 "place signs by all syntax errs in the buffer
 function! s:SignErrors()
+    let time = reltime()
+    try
     let loclist = s:LocList()
+    echomsg 'loclist[' . len(loclist)  . ']'
+    echomsg 'first_sign_id = ' . s:first_sign_id
     if loclist.hasErrorsOrWarningsToDisplay()
 
         let errors = loclist.filter({'bufnr': bufnr('')})
@@ -335,6 +324,9 @@ function! s:SignErrors()
             endif
         endfor
     endif
+    finally
+        echomsg 'SignErrors: ' . reltimestr(reltime(time))
+    endtry
 endfunction
 
 "return true if the given error item is a warning that, if signed, would
@@ -350,10 +342,15 @@ endfunction
 
 "remove the signs with the given ids from this buffer
 function! s:RemoveSigns(ids)
+    let time = reltime()
+    try
     for i in a:ids
         exec "sign unplace " . i
         call remove(s:BufSignIds(), index(s:BufSignIds(), i))
     endfor
+    finally
+        echomsg 'RemoveSigns: ' . reltimestr(reltime(time))
+    endtry
 endfunction
 
 "get all the ids of the SyntaxError signs in the buffer
@@ -369,6 +366,7 @@ function! s:RefreshSigns()
     let time = reltime()
     try
     let old_signs = copy(s:BufSignIds())
+    echomsg '* old_signs[' . len(old_signs) . ']'
     call s:SignErrors()
     call s:RemoveSigns(old_signs)
     let s:first_sign_id = s:next_sign_id
