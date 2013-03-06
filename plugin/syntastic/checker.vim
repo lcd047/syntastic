@@ -41,7 +41,7 @@ function! g:SyntasticChecker.getLocList()
     let list = self._locListFunc()
     let llist = g:SyntasticLoclist.New(list)
     finally
-        echomsg 'SyntasticChecker.getLocList: ' . reltimestr(reltime(time))
+        echomsg self._name . '.getLocList: ' . reltimestr(reltime(time))
     endtry
     return llist
 endfunction

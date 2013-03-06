@@ -167,7 +167,12 @@ function! s:UpdateErrors(auto_invoked, ...)
 
     let loclist = s:LocList()
     if g:syntastic_auto_jump && loclist.hasErrorsOrWarningsToDisplay()
+        let time2 = reltime()
+        try
         silent! ll
+        finally
+            echomsg 'll: ' . reltimestr(reltime(time2))
+        endtry
     endif
 
     call s:AutoToggleLocList()
@@ -216,12 +221,16 @@ endfunction
 
 "detect and cache all syntax errors in this buffer
 function! s:CacheErrors(...)
+    let time = reltime()
+    try
     call s:ClearCache()
     let newLoclist = g:SyntasticLoclist.New([])
 
     if filereadable(expand("%"))
         for ft in s:CurrentFiletypes()
 
+            let time2 = reltime()
+            try
             if a:0
                 let checker = s:registry.getChecker(ft, a:1)
                 if !empty(checker)
@@ -230,7 +239,12 @@ function! s:CacheErrors(...)
             else
                 let checkers = s:registry.getActiveCheckers(ft)
             endif
+            finally
+                echomsg 'CacheErrors - active checkers for ' . ft . ': ' . reltimestr(reltime(time2))
+            endtry
 
+            let time2 = reltime()
+            try
             for checker in checkers
                 let loclist = checker.getLocList()
 
@@ -241,10 +255,16 @@ function! s:CacheErrors(...)
                     break
                 endif
             endfor
+            finally
+                echomsg 'CacheErrors - extend for ' . ft . ': ' . reltimestr(reltime(time2))
+            endtry
         endfor
     endif
 
     let b:syntastic_loclist = newLoclist
+    finally
+        echomsg 'CacheErrors: ' . reltimestr(reltime(time))
+    endtry
 endfunction
 
 "toggle the g:syntastic_mode_map['mode']
@@ -346,10 +366,15 @@ endfunction
 
 "update the error signs
 function! s:RefreshSigns()
+    let time = reltime()
+    try
     let old_signs = copy(s:BufSignIds())
     call s:SignErrors()
     call s:RemoveSigns(old_signs)
     let s:first_sign_id = s:next_sign_id
+    finally
+        echomsg 'RefreshSigns: ' . reltimestr(reltime(time))
+    endtry
 endfunction
 
 "display the cached errors for this buf in the location list
@@ -375,6 +400,8 @@ endfunction
 "If the 'force_highlight_callback' key is set for an error item, then invoke
 "the callback even if it can be highlighted automatically.
 function! s:HighlightErrors()
+    let time = reltime()
+    try
     call s:ClearErrorHighlights()
     let loclist = s:LocList()
 
@@ -401,6 +428,9 @@ function! s:HighlightErrors()
             endif
         endfor
     endfor
+    finally
+        echomsg 'HighlightErrors: ' . reltimestr(reltime(time))
+    endtry
 endfunction
 
 "remove all error highlights from the window
@@ -414,6 +444,8 @@ endfunction
 
 "set up error ballons for the current set of errors
 function! s:RefreshBalloons()
+    let time = reltime()
+    try
     let b:syntastic_balloons = {}
     let loclist = s:LocList()
     if loclist.hasErrorsOrWarningsToDisplay()
@@ -422,6 +454,9 @@ function! s:RefreshBalloons()
         endfor
         set beval bexpr=SyntasticErrorBalloonExpr()
     endif
+    finally
+        echomsg 'RefreshBalloons: ' . reltimestr(reltime(time))
+    endtry
 endfunction
 
 "print as much of a:msg as possible without "Press Enter" prompt appearing
